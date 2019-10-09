@@ -44,6 +44,18 @@ while(i <= totalPag):
     i+=1
 
 
+# In[101]:
+
+
+dfLinhasSite = pd.DataFrame(forecast_itens)
+
+
+# In[103]:
+
+
+dfLinhasSite.to_excel('linhasSite.xls')
+
+
 # In[94]:
 
 
@@ -110,6 +122,12 @@ dfData['qtdLinhas'] = listQtdLinhas
 
 
 dfData
+
+
+# In[100]:
+
+
+dfData.to_excel('df_linhas.xls')
 
 
 # In[ ]:
