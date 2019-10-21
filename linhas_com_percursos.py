@@ -7,47 +7,45 @@ from unicodedata import normalize
 #removendo acentuação
 def remover_acentos(txt):
     return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('ASCII')
-link = 'https://www.meubuzu.com.br/linhas?page=1'
-page = requests.get(link)
-soup = BeautifulSoup(page.text, 'html.parser')
-temp = soup.find_all('div', class_ = 'col-sm-5 col-xs-10')[1]
 
-print(temp.find('a')['href'])
-print(temp.find('span').get_text())
-strLinkIn = str(temp.find('a')['href'])
-linkIn = strLinkIn
-print('1')
-pageIn =requests.get(linkIn)
-print('2')
-soupIn = BeautifulSoup(pageIn.content, 'html.parser')
-print('3')
-tempIn = soupIn.find_all('div', class_ = 'col-xs-12 line-item-name')
-print('4')
-print(tempIn)
-
+def countDivClass(html, className):
+    soup = BeautifulSoup(html.text, 'html.parser')
+    count = soup.find_all('div', class_ = className)
+    return len(count)
+    
 link = 'https://www.meubuzu.com.br/linhas?page='
 i=1
-totalPag = 1
+totalPag = 2
 linhasPorPag = 20
-forecast_itens = []
-while(i <= totalPag):
-    page = requests.get(link+ str(i))
-    k=0
-    if(page.status_code == 200): #melhorar os testes de acesso a página
-        soup = BeautifulSoup(page.content, 'html.parser')
+linhasNome = []
+percursoNome = []
+classNameIn = 'col-xs-12 line-item-name'
+
+while(i < totalPag):
+    pageOut = requests.get(link + str(i))
+    k = 0
+    if(pageOut.status_code == 200):
+        soupOut = BeautifulSoup(pageOut.text, 'html.parser')
         while(k < linhasPorPag):
             temp = soup.find_all('span', class_ = 'visible-xs')[k].get_text()
-            forecast_itens.append(remover_acentos(temp))
+            linhasNome.append(remover_acentos(temp))
+            print(linhasNome)
+            strLinkIn = str(temp.find('a')['href'])
+            print(strLinkIn)
+            pageIn = requests.get(strLinkIn)
+            if(pageIn.status_code == 200):
+                soupIn = BeautifulSoup(pageIn.text, 'html.parser')
+                j = countDivClass(pageIn, classNameIn)
+                m = 0
+                while(m < j):
+                    tempIn = soupIn.find_all(class_ = 'col-xs-12 line-item-name')[m].get_text()
+                    percursoNome.append([remover_acentos(temp), remover_acentos(tempIn)])
+                    m+=1
             k+=1
             if(i == totalPag):
                 k = 20
                 break
     i+=1
-
-dfLinhasSite = pd.DataFrame(forecast_itens)
-
-
-# In[103]:
 
 
 dfLinhasSite.to_excel('linhasSite.xls')
